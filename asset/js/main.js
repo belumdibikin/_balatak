@@ -12,6 +12,7 @@ $(function() {
 	var _feedbackTO = "";
 	var _superTO = "";
 	var _holder = true;
+	var _holderA = true;
 
 	var _arrQuestions = [];
 	var _curQuestion = 0;
@@ -42,32 +43,32 @@ $(function() {
 		console.log(_url);
 		_ajax = $.ajax({
 			url: _url,
-			async: false,
+			async: true,
 			success: function(data){
 				data["words"].forEach(function(_temp){
 					_arrQuestions.push(_temp);
 				});
 				_offset = data["offset"];
 				_source = data["source"];
-				// if($("#game_question").html("<i class='fa fa-spinner fa-pulse fa-fw'></i>GENERATING WORDS")){
-				// 	createQuestion();
-				// }
+				if($("#game_question").html("<i class='fa fa-spinner fa-pulse fa-fw'></i>GENERATING WORDS")){
+					createQuestion();
+				}
 			}
 		});
 	}
 
 	var createQuestion = function(){
-		console.log(_arrQuestions.length);
+		$("#game_question").html("<i class='fa fa-spinner fa-pulse fa-fw'></i>GENERATING WORDS");
 		if(_arrQuestions.length == 2){
-			$("#game_question").html("<i class='fa fa-spinner fa-pulse fa-fw'></i>GENERATING WORDS");
 			getWord();
-		}
-		
-		if(_arrQuestions.length > 0){
+		}else if(_arrQuestions.length > 0){
 			$("#game_question").html(_arrQuestions[0]["word"]);
 			_curQuestion = _arrQuestions[0]["dictionary_id"];
 			_arrQuestions.shift();
 			disableAnswer(false);
+			_holderA = true;
+		}else{
+			$("#game_question").html("<i class='fa fa-spinner fa-pulse fa-fw'></i>GENERATING WORDS");
 		}
 	}
 
@@ -198,47 +199,50 @@ $(function() {
 
 	var checkAnswer = function(){
 		disableAnswer(true);
-		_answer = $("#game_answer").val();
-		_answer = _answer.toUpperCase();
-		_url = base_url + "Game/doCheckAnswer/" + _curQuestion + "/" + _answer;
-		$.ajax({
-			url: _url,
-			async: false,
-			success: function(data){
-				_feedback = "";
-				console.log(_curQuestion + " " + _answer + " " + data["word"]);
-				if(data["status"] == "Benar"){
-					_feedback += "+1 " + _arrTrue[Math.floor(Math.random() * _arrTrue.length)];
-					$("#game_feedback").css("color", "#00FF00");
-					$("#game_score").css("color", "#00FF00");
-					$("#game_score").html(_score + " +1");
-					_score += 1;
-				}else{
-					_feedback += "-1 " + _arrFalse[Math.floor(Math.random() * _arrFalse.length)];
-					$("#game_feedback").css("color", "#FF0000");				
-					$("#game_score").css("color", "#FF0000");				
-					$("#game_score").html(_score + " -1");
-					_score -= 1;	
-				}
-				
-				_feedback += " The answer is : <b>" + data["word"] + "</b>";
-
-				$("#game_feedback").html(_feedback);
-				$("#game_answer").val("");
-				createQuestion();
-				
-				clearTimeout(_feedbackTO);
-				_feedbackTO = setTimeout(function(){
-					if(_highscore < _score){
-						_highscore = _score;
-						$("#game_highscore").html(_highscore);
+		if($("#game_answer").prop("disabled") == true && _holderA == true){
+			_holderA = false;
+			_answer = $("#game_answer").val();
+			_answer = _answer.toUpperCase();
+			_url = base_url + "Game/doCheckAnswer/" + _curQuestion + "/" + _answer;
+			$.ajax({
+				url: _url,
+				async: false,
+				success: function(data){
+					_feedback = "";
+					console.log(_curQuestion + " " + _answer + " " + data["word"]);
+					if(data["status"] == "Benar"){
+						_feedback += "+1 " + _arrTrue[Math.floor(Math.random() * _arrTrue.length)];
+						$("#game_feedback").css("color", "#00FF00");
+						$("#game_score").css("color", "#00FF00");
+						$("#game_score").html(_score + " +1");
+						_score += 1;
+					}else{
+						_feedback += "-1 " + _arrFalse[Math.floor(Math.random() * _arrFalse.length)];
+						$("#game_feedback").css("color", "#FF0000");				
+						$("#game_score").css("color", "#FF0000");				
+						$("#game_score").html(_score + " -1");
+						_score -= 1;	
 					}
-					$("#game_score").css("color", "#000000");				
-					$("#game_score").html(_score);
-					$("#game_feedback").html("&nbsp;");
-				}, 2000);
-			}
-		});
+
+					_feedback += " The answer is : <b>" + data["word"] + "</b>";
+
+					$("#game_feedback").html(_feedback);
+					$("#game_answer").val("");
+					createQuestion();
+
+					clearTimeout(_feedbackTO);
+					_feedbackTO = setTimeout(function(){
+						if(_highscore < _score){
+							_highscore = _score;
+							$("#game_highscore").html(_highscore);
+						}
+						$("#game_score").css("color", "#000000");				
+						$("#game_score").html(_score);
+						$("#game_feedback").html("&nbsp;");
+					}, 2000);
+				}
+			});
+		}
 	}
 
 	$("#game_answer").bind('keyup blur',function(e){ 
@@ -260,7 +264,7 @@ $(function() {
 	_url = base_url + "Game/doGetWords/" + _offset + "/" + _source;
 	$.ajax({
 		url: _url,
-		async: false,
+		async: true,
 		success: function(data){
 			data["words"].forEach(function(_temp){
 				_arrQuestions.push(_temp);
