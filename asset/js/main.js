@@ -18,6 +18,7 @@ $(function() {
 	var _curQuestion = 0;
 	var _score = 0;
 	var _highscore = 0;
+	var _player = "";
 
 	var _token = "";
 	var _tokentime = "";
@@ -73,11 +74,8 @@ $(function() {
 	}
 
 	var shareTwitter = function(){
+		// submitScore();
 		window.open("https://twitter.com/intent/tweet?url="+base_url+"&amp;text=My Score is "+_highscore+", how about you\?;hashtags=balatak", "_blank", "width=auto,height=auto");
-	}
-
-	var shareFacebook = function(){
-		window.open("https://www.facebook.com/sharer/sharer.php?url="+encodeURI(base_url), "_blank", "width=auto,height=auto");
 	}
 
 	$("#game_twitter").click(function(){
@@ -86,11 +84,72 @@ $(function() {
 
 	$("#game_super").click(function(){
 		$("#super_two").hide();
+		$("#super_nav").hide();
 		$("#super_first").show();
 		$("#super_modal").modal({
 			backdrop: "static"
 		})
 	})
+
+	$("#well_score").click(function(){
+		$("#super_two").hide();
+		_url = base_url + "Game/doGetScore/";
+		$.ajax({
+			url: _url,
+			async: true,
+			success: function(data){
+				if(data["status"] == "success"){
+					_html = "";
+					_html += "<table class='table table-hover'>";
+					_html += "<thead>";
+					_html += "<tr>";
+					_html += "<th>#</th>";
+					_html += "<th>Player Name</th>";
+					_html += "<th>Score</th>";
+					_html += "</tr>";
+					_html += "</thead>";
+					_html += "<tbody>";
+					_hit = 1;
+					data["score"].forEach(function(_score){
+						_html += "<tr>";
+						_html += "<th scope='row'>" + _hit + "</th>";
+						_html += "<td>" + _score["player"] + "</td>";
+						_html += "<td>" + _score["score"] + "</td>";
+						_html += "</tr>";
+						_hit++;
+					});
+					_html += "</tbody>";
+					_html += "</table>";
+					$("#super_feedback").html(_html);
+				}else{				
+					$("#super_feedback").html("No Data");
+				}
+			}
+		});
+	});
+
+	$("#well_add").click(function(){
+		$("#super_two").show();
+		$("#super_word").focus();				
+		$("#super_feedback").html("&nbsp;");
+	});
+
+
+	$('#player_modal').on('shown.bs.modal show.bs.modal', function (e) {
+		$("#player_name").focus();
+
+		$("#player_name").bind('keyup blur',function(e){
+			if(e.keyCode == 13){
+				$("#player_login").click();
+			}
+		});
+	})
+
+	$("#player_login").click(function(){
+		_player = $("#player_name").val() + "_" + parseInt(Math.random() * 1000000);
+		$("#player_modal").modal("hide");
+		$("#game_answer").focus();
+	});
 
 	$('#super_modal').on('shown.bs.modal show.bs.modal', function (e) {
 		$("#super_pass").focus();
@@ -113,7 +172,6 @@ $(function() {
 
 	$("#super_login").click(function(){
 		_url = base_url + "Game/getSuperToken";
-		console.log($("#super_pass").val());
 		$.ajax({
 			url: _url,
 			async: false,
@@ -122,11 +180,11 @@ $(function() {
 				"password": $("#super_pass").val()
 			},
 			success: function(data){
-				console.log(data);
 				if(data["status"] != "failed"){
 					_tokentime = data["tokentime"];
 					_token = data["token"];
 					$("#super_two").show();
+					$("#super_nav").show();
 					$("#super_first").hide();
 					$("#super_feedback").html("Success !");
 					$("#super_feedback").css("color", "#00FF00");
@@ -160,11 +218,11 @@ $(function() {
 					"newword": $("#super_word").val()
 				},
 				success: function(data){
-					console.log(data);
 					if(parseInt(data["status"]) > 0){
 						_tokentime = data["tokentime"];
 						_token = data["token"];
 						$("#super_two").show();
+						$("#super_nav").show();
 						$("#super_first").hide();
 						$("#super_feedback").html("Kata terdaftar dalam Kamus Oxford, dan berhasil ditambahkan kedalam database.");
 						$("#super_feedback").css("color", "#00FF00");
@@ -191,11 +249,16 @@ $(function() {
 		}
 	})
 
-	$("#game_facebook").click(function(){
-		// shareFacebook();
-		// shareFacebook();
-	})
-	$("#game_facebook").prop("disabled", true);
+	var submitScore = function(){
+		_url = base_url + "Game/doSubmitScore/" + _player + "/" + _score;
+		$.ajax({
+			url: _url,
+			async: true,
+			success: function(data){
+				console.log(data);
+			}
+		});
+	}
 
 	var checkAnswer = function(){
 		disableAnswer(true);
@@ -235,6 +298,7 @@ $(function() {
 						if(_highscore < _score){
 							_highscore = _score;
 							$("#game_highscore").html(_highscore);
+							submitScore();
 						}
 						$("#game_score").css("color", "#000000");				
 						$("#game_score").html(_score);
@@ -260,6 +324,10 @@ $(function() {
 		checkAnswer();
 	});
 
+	$("#player_modal").modal({
+		backdrop: "static"
+	});
+
 	disableAnswer(true);
 	_url = base_url + "Game/doGetWords/" + _offset + "/" + _source;
 	$.ajax({
@@ -273,6 +341,7 @@ $(function() {
 			_source = data["source"];
 
 			createQuestion();
+			$("#player_name").focus();
 		}
 	});
 });

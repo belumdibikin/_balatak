@@ -11,6 +11,25 @@ class Game extends Controller{
 		echo $_view;
 	}
 
+	public function doSubmitScore($_player, $_score){
+		$model_score = $this->loadModel("Score");
+		echo $model_score->submitScore($_player, $_score);
+	}
+
+	public function doGetScore(){
+		$model_score = $this->loadModel("Score");
+
+		$dataSend = array();
+		$dataSend["status"] = "failed";
+		$dataSend["score"] = array();
+
+		$dataSend["score"] = $model_score->getScore();
+		if(count($dataSend["score"]) > 0) $dataSend["status"] = "success";
+		
+		header('Content-Type: application/json');
+		echo json_encode($dataSend);
+	}
+
 	public function getSuperToken(){
 		$_return = array();
 		$_return["status"] = "failed";

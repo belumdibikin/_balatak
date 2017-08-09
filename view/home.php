@@ -63,13 +63,30 @@
 			</p>
 			<p>
 				<button class="btn btn-info" name="game_twitter" id="game_twitter" href="javascript:void(0);"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i>&nbsp;Tweet</button>
-				<button class="btn btn-primary" name="game_facebook" id="game_facebook" href="javascript:void(0);"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i>&nbsp;Share</button>
 			</p>
 		</div>
 		<footer class="footer pull-right clearfix">
 			<p>© 2017 belumdibikin</p>
 		</footer>
 
+	</div>
+
+	<div id="player_modal" name="super_modal" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Player Modal</h4>
+				</div>
+				<div class="modal-body">
+					<div class="input-group clearfix">
+						<input type="text" name="player_name" id="player_name" class="form-control" placeholder="">
+						<span class="input-group-btn">
+							<button class="btn btn-warning" name="player_login" id="player_login" href="javascript:void(0);">START</button>
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div id="super_modal" name="super_modal" class="modal fade" tabindex="-1" role="dialog">
@@ -80,6 +97,10 @@
 					<h4 class="modal-title">Super Modal</h4>
 				</div>
 				<div class="modal-body">
+					<div class="well well-sm" id="super_nav" name="super_nav" align="center">
+						<button class="btn btn-warning" name="well_add" id="well_add" href="javascript:void(0);">ADD WORD</button>
+						<button class="btn btn-info" name="well_score" id="well_score" href="javascript:void(0);">PLAYER SCORE</button>
+					</div>
 					<div class="input-group clearfix" id="super_first" name="super_first">
 						<input type="text" name="super_pass" id="super_pass" class="form-control" placeholder="">
 						<span class="input-group-btn">
@@ -94,7 +115,7 @@
 					</div>
 					&nbsp;
 					<div class="panel panel-default">
-						<div class="panel-body clearfix" id="super_feedback" name="super_feedback">
+						<div class="panel-body clearfix" align="center" id="super_feedback" name="super_feedback">
 							&nbsp;
 						</div>
 					</div>
